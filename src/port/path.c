@@ -135,6 +135,10 @@ first_path_var_separator(const char *pathlist)
  *
  * Find the location of the last directory separator, return
  * NULL if not found.
+ * 
+ * eg:
+ * input: /usr/local/postgres/bin/postgres
+ * output: /postgres
  */
 char *
 last_dir_separator(const char *filename)
@@ -143,7 +147,7 @@ last_dir_separator(const char *filename)
 			   *ret = NULL;
 
 	for (p = skip_drive(filename); *p; p++)
-		if (IS_DIR_SEP(*p))
+		if (IS_DIR_SEP(*p)) // (ch) == '/'
 			ret = p;
 	return unconstify(char *, ret);
 }
@@ -570,6 +574,9 @@ path_is_prefix_of_path(const char *path1, const char *path2)
 /*
  * Extracts the actual name of the program as called -
  * stripped of .exe suffix if any
+ * eg: 
+ * input: /usr/local/postgres/bin/postgres
+ * output: postgres
  */
 const char *
 get_progname(const char *argv0)
@@ -579,7 +586,7 @@ get_progname(const char *argv0)
 
 	nodir_name = last_dir_separator(argv0);
 	if (nodir_name)
-		nodir_name++;
+		nodir_name++; // /postgres => postgres
 	else
 		nodir_name = skip_drive(argv0);
 

@@ -68,6 +68,7 @@ main(int argc, char *argv[])
 	pgwin32_install_crashdump_handler();
 #endif
 
+	// eg: /usr/local/postgres/bin/postgres => postgres
 	progname = get_progname(argv[0]);
 
 	/*

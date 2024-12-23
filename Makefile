@@ -41,3 +41,8 @@ all check install installdirs installcheck installcheck-parallel uninstall clean
 	   echo "You must use GNU make to build PostgreSQL." ; \
 	   false; \
 	 fi
+
+.PHONY: build
+build:
+	./configure --prefix=/Users/wang/local/postgres --enable-debug --enable-cassert --enable-depend CFLAGS=-O0 && \
+	make && make install
