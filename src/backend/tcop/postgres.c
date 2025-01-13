@@ -609,6 +609,8 @@ ProcessClientWriteInterrupt(bool blocked)
  * database tables.  So, we rely on the raw parser to determine whether
  * we've seen a COMMIT or ABORT command; when we are in abort state, other
  * commands are not processed any further than the raw parse stage.
+ *
+ * return *RawStmt
  */
 List *
 pg_parse_query(const char *query_string)
@@ -673,11 +675,12 @@ pg_parse_query(const char *query_string)
  * NOTE: for reasons mentioned above, this must be separate from raw parsing.
  */
 List *
-pg_analyze_and_rewrite_fixedparams(RawStmt *parsetree,
-								   const char *query_string,
-								   const Oid *paramTypes,
-								   int numParams,
-								   QueryEnvironment *queryEnv)
+pg_analyze_and_rewrite_fixedparams(
+	RawStmt *parsetree,
+	const char *query_string,
+	const Oid *paramTypes,
+	int numParams,
+	QueryEnvironment *queryEnv)
 {
 	Query	   *query;
 	List	   *querytree_list;
@@ -686,18 +689,31 @@ pg_analyze_and_rewrite_fixedparams(RawStmt *parsetree,
 
 	/*
 	 * (1) Perform parse analysis.
+	 * 语义分析
 	 */
 	if (log_parser_stats)
 		ResetUsage();
 
-	query = parse_analyze_fixedparams(parsetree, query_string, paramTypes, numParams,
-									  queryEnv);
+	// 分析树 => 语义分析 => 查询树
+	//
+	// 语义分析 例如:
+	// 根据表的名字得到其OID，
+	// 根据属性名得到其属性号，
+	// 根据操作符的名字得到其对应的计算函数等
+	query = parse_analyze_fixedparams(
+		parsetree,   /* RawStmt *parseTree */
+		query_string /* const char *sourceText */,
+		paramTypes   /* const Oid *paramTypes */,
+		numParams    /* int numParams */,
+		queryEnv     /* QueryEnvironment *queryEnv */
+		);
 
 	if (log_parser_stats)
 		ShowUsage("PARSE ANALYSIS STATISTICS");
 
 	/*
 	 * (2) Rewrite the queries, as necessary
+	 * 查询重写
 	 */
 	querytree_list = pg_rewrite_query(query);
 
@@ -1023,7 +1039,7 @@ exec_simple_query(const char *query_string)
 {
 	CommandDest dest = whereToSendOutput;
 	MemoryContext oldcontext;
-	List	   *parsetree_list;
+	List	   *parsetree_list; // RawStmt
 	ListCell   *parsetree_item;
 	bool		save_log_statement_stats = log_statement_stats;
 	bool		was_logged = false;
@@ -1072,6 +1088,7 @@ exec_simple_query(const char *query_string)
 	 * Do basic parsing of the query or queries (this should be safe even if
 	 * we are in aborted transaction state!)
 	 */
+	// 词法和语法分析
 	parsetree_list = pg_parse_query(query_string);
 
 	/* Log immediately if dictated by log_statement */
@@ -1196,8 +1213,14 @@ exec_simple_query(const char *query_string)
 		else
 			oldcontext = MemoryContextSwitchTo(MessageContext);
 
-		querytree_list = pg_analyze_and_rewrite_fixedparams(parsetree, query_string,
-															NULL, 0, NULL);
+		// 原始语法树 => 语义分析 + 查询重写 => 查询语法树
+		querytree_list = pg_analyze_and_rewrite_fixedparams(
+			parsetree,        /* RawStmt *parsetree */
+			query_string      /* const char *query_string */,
+			NULL,             /* const Oid *paramTypes */
+			0,       /* int numParams */
+			NULL              /* QueryEnvironment *queryEnv */
+			);
 
 		plantree_list = pg_plan_queries(querytree_list, query_string,
 										CURSOR_OPT_PARALLEL_OK, NULL);

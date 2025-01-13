@@ -4,6 +4,8 @@
  *	  routines to support running postgres in 'bootstrap' mode
  *	bootstrap mode is used to create the initial template database
  *
+ *  用于支持BootStrap运行模式，该模式主要用来创建初始的模板数据库
+ *
  * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *

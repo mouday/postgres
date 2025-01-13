@@ -8,6 +8,7 @@
  * separately exec'd child of a postmaster) and then dispatches to the
  * proper FooMain() routine for the incarnation.
  *
+ * 主程序模块，它负责将控制权转移到Postmaster 进程或Postgres 进程
  *
  * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California

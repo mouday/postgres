@@ -203,6 +203,7 @@ typedef Node *(*CoerceParamHook) (ParseState *pstate, Param *param,
  *
  * p_ref_hook_state: passthrough state for the parser hook functions.
  */
+// 用于记录语义分析的状态
 struct ParseState
 {
 	ParseState *parentParseState;	/* stack link */

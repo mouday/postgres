@@ -41,16 +41,19 @@ static char *str_udeescape(const char *str, char escape,
 List *
 raw_parser(const char *str, RawParseMode mode)
 {
+	// 1、声明变量yyscanner和yyextra
 	core_yyscan_t yyscanner;
 	base_yy_extra_type yyextra;
 	int			yyresult;
 
 	/* initialize the flex scanner */
+	// 调用 scanner_init函数初始化yyscanner和yyextra
 	yyscanner = scanner_init(str, &yyextra.core_yy_extra,
 							 &ScanKeywords, ScanKeywordTokens);
 
 	/* base_yylex() only needs us to initialize the lookahead token, if any */
 	if (mode == RAW_PARSE_DEFAULT)
+		// 设置yyextra.have_lookahead = false
 		yyextra.have_lookahead = false;
 	else
 	{
@@ -71,17 +74,20 @@ raw_parser(const char *str, RawParseMode mode)
 	}
 
 	/* initialize the bison parser */
+	// 调用parser_init设置yyextra->parsetree = NIL
 	parser_init(&yyextra);
 
 	/* Parse! */
+	// 调用base_yyparse进行词法分析
 	yyresult = base_yyparse(yyscanner);
 
 	/* Clean up (release memory) */
+	// 调用scanner_finish释放内存
 	scanner_finish(yyscanner);
 
 	if (yyresult)				/* error */
 		return NIL;
-
+	// 返回语法树
 	return yyextra.parsetree;
 }
 

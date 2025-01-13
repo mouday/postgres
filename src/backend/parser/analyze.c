@@ -102,10 +102,14 @@ static bool test_raw_expression_coverage(Node *node, void *context);
  * a dummy CMD_UTILITY Query node.
  */
 Query *
-parse_analyze_fixedparams(RawStmt *parseTree, const char *sourceText,
-						  const Oid *paramTypes, int numParams,
-						  QueryEnvironment *queryEnv)
+parse_analyze_fixedparams(
+	RawStmt *parseTree,
+	const char *sourceText,
+	const Oid *paramTypes,
+	int numParams,
+	QueryEnvironment *queryEnv)
 {
+	// ParseState结构用于记录语义分析的状态
 	ParseState *pstate = make_parsestate(NULL);
 	Query	   *query;
 	JumbleState *jstate = NULL;
@@ -119,6 +123,8 @@ parse_analyze_fixedparams(RawStmt *parseTree, const char *sourceText,
 
 	pstate->p_queryEnv = queryEnv;
 
+	// transformTopLevelStmt 函数负责在调用transformOptionalSelectInto函数之后，
+	// 将parseTree中的 stmt_localtion 和 stmt_len 复制到查询树Query相应字段中
 	query = transformTopLevelStmt(pstate, parseTree);
 
 	if (IsQueryIdEnabled())
@@ -338,6 +344,8 @@ transformTopLevelStmt(ParseState *pstate, RawStmt *parseTree)
 	pstate->p_stmt_location = parseTree->stmt_location;
 
 	/* We're at top level, so allow SELECT INTO */
+	// transformOptionalSelectInto 函数的作用是
+	// 在select语句中还有INTO时，将其转换为CREATE TABLE AS
 	result = transformOptionalSelectInto(pstate, parseTree->stmt);
 
 	return result;
