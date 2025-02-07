@@ -88,10 +88,15 @@
  */
 typedef enum PortalStrategy
 {
+	// 处理单个的SELECT语句，调用Executor模块
 	PORTAL_ONE_SELECT,
+	// 处理带RETURNING的UPDATE/DELETE/INSERT语句，调用Executor模块
 	PORTAL_ONE_RETURNING,
+	// 处理带有INSERT/UPDATE/DELETE的WITH子句的SELECT，其处理逻辑类似PORTAL_ONE_RETURNING。调用Executor模块；
 	PORTAL_ONE_MOD_WITH,
+	// 处理单个的数据定义语句，调用ProcessUtility模块
 	PORTAL_UTIL_SELECT,
+	// 是前面几种策略的混合，可以处理多个原子操作。
 	PORTAL_MULTI_QUERY,
 } PortalStrategy;
 
@@ -133,9 +138,11 @@ typedef struct PortalData
 	int			createLevel;	/* creating subxact's nesting level */
 
 	/* The query or queries the portal will execute */
+	// 原始SQL语句
 	const char *sourceText;		/* text of query (as of 8.4, never NULL) */
 	CommandTag	commandTag;		/* command tag for original query */
 	QueryCompletion qc;			/* command completion data for executed query */
+	// 查询编译器输出的查询计划树链表
 	List	   *stmts;			/* list of PlannedStmts */
 	CachedPlan *cplan;			/* CachedPlan, if stmts are from one */
 
@@ -143,6 +150,7 @@ typedef struct PortalData
 	QueryEnvironment *queryEnv; /* environment for query */
 
 	/* Features/options */
+	// 为当前查询选择的执行策略
 	PortalStrategy strategy;	/* see above */
 	int			cursorOptions;	/* DECLARE CURSOR option bits */
 	bool		run_once;		/* portal will only be run once */
@@ -154,9 +162,11 @@ typedef struct PortalData
 								 * held (see HoldPinnedPortals()) */
 
 	/* If not NULL, Executor is active; call ExecutorEnd eventually: */
+	// 查询描述符，存储执行查询所需的所有信息
 	QueryDesc  *queryDesc;		/* info needed for executor invocation */
 
 	/* If portal returns tuples, this is their tupdesc: */
+	// 描述可能的返回元组的结构
 	TupleDesc	tupDesc;		/* descriptor for result tuples */
 	/* and these are the format codes to use for the columns: */
 	int16	   *formats;		/* a format code for each column */

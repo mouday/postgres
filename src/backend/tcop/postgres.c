@@ -833,6 +833,7 @@ pg_rewrite_query(Query *query)
 	if (log_parser_stats)
 		ResetUsage();
 
+	// 对CMD_UTILITY不做任何处理
 	if (query->commandType == CMD_UTILITY)
 	{
 		/* don't rewrite utilities, just dump 'em into result list */
@@ -924,6 +925,7 @@ pg_plan_query(Query *querytree, const char *query_string, int cursorOptions,
 		ResetUsage();
 
 	/* call the optimizer */
+	// 查询计划模块
 	plan = planner(querytree, query_string, cursorOptions, boundParams);
 
 	if (log_planner_stats)
@@ -1222,8 +1224,13 @@ exec_simple_query(const char *query_string)
 			NULL              /* QueryEnvironment *queryEnv */
 			);
 
-		plantree_list = pg_plan_queries(querytree_list, query_string,
-										CURSOR_OPT_PARALLEL_OK, NULL);
+		// 查询规划 => 计划树
+		plantree_list = pg_plan_queries(
+			querytree_list,                    /* List *querytrees */
+			query_string,                      /* const char *query_string */
+			CURSOR_OPT_PARALLEL_OK, /* int cursorOptions */
+			NULL                               /* ParamListInfo boundParams */
+			);
 
 		/*
 		 * Done with the snapshot used for parsing/planning.
@@ -1245,6 +1252,10 @@ exec_simple_query(const char *query_string)
 		 * Create unnamed portal to run the query or queries in. If there
 		 * already is one, silently drop it.
 		 */
+		// （1）调用函数CreatePortal创建一个干净的Portal，
+		// 其中内存上下文、资源跟踪器、清理函数等都已经设置好，
+		// 但sourceText、stmts等字段并没有设置
+		// portal->status = PORTAL_NEW
 		portal = CreatePortal("", true, true);
 		/* Don't display the portal in pg_cursors */
 		portal->visible = false;
@@ -1254,18 +1265,28 @@ exec_simple_query(const char *query_string)
 		 * we are passing here is in MessageContext or the
 		 * per_parsetree_context, and so will outlive the portal anyway.
 		 */
+		// （2）调用函数PortalDefineQuery为刚创建的Portal设置sourceText、stmts等字段，
+		// 这些字段的值都来自于查询编译器输出的结果，
+		// 其中还会将Portal的状态设置为PORTAL_DEFINED表示Portal已被定义
+		// portal->status = PORTAL_DEFINED;
 		PortalDefineQuery(
-			portal,          /* portal */
+			portal,                      /* portal */
 			NULL,            /* prepStmtName */
-			query_string,    /* sourceText */
-			commandTag,      /* commandTag */
-			plantree_list,   /* stmts */
-			NULL             /* cplan */
+			query_string,       /* sourceText */
+			commandTag,                  /* commandTag */
+			plantree_list,               /* stmts */
+			NULL                         /* cplan */
 		);
 
 		/*
 		 * Start the portal.  No parameters here.
 		 */
+		// （3）调用函数PortalStart对定义好的Portal进行初始化，初始化工作主要如下：
+		// 1. 调用ChoosePortalStrategy为Portal选择策略
+		// 2. 如果选择的是PORTAL_ONE_SELECCT策略，调用CreateQueryDesc为Portal创建查询描述符
+		// 3. 如果选择的是PORTAL_ONE_RETURNING或者PORTAL_UTIL_SELECT策略，为Portal创建返回元组的描述符
+		// 4. 将Portal的状态设置为PORTAL_READY，表示Portal已经初始化好，准备开始执行
+		// portal->status = PORTAL_READY;
 		PortalStart(portal, NULL, 0, InvalidSnapshot);
 
 		/*
@@ -1305,6 +1326,8 @@ exec_simple_query(const char *query_string)
 		/*
 		 * Run the portal to completion, and then drop it (and the receiver).
 		 */
+		// （4）调用函数PortalRun执行Portal
+		// 该函数将按照Portal中执行的策略调用相应的执行部件来执行Portal。
 		(void) PortalRun(portal,
 						 FETCH_ALL,
 						 true,	/* always top level */
@@ -1315,6 +1338,8 @@ exec_simple_query(const char *query_string)
 
 		receiver->rDestroy(receiver);
 
+		// （5）调用函数PortalDrop清理Portal，
+		// 主要是对Portal运行中所占用的资源进行释放，特别是用于缓存结果的资源。
 		PortalDrop(portal, false);
 
 		if (lnext(parsetree_list, parsetree_item) == NULL)

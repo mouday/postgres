@@ -216,7 +216,20 @@ ChoosePortalStrategy(List *stmts)
 	 * single-statement case, since there are no rewrite rules that can add
 	 * auxiliary queries to a SELECT or a utility command. PORTAL_ONE_MOD_WITH
 	 * likewise allows only one top-level statement.
-	 */
+
+	* 选择PORTAL_ONE_SELECT策略应满足以下条件：
+	* stmts链表中只有一个PlannedStmt类型或是Query类型的节点；
+	* 节点是CMD_SELECT类型操作；节点的utilityStmt字段和intoClause字段为空
+	*
+	* 选择PORTAL_UTIL_SELECT策略应满足以下条件：
+	* stmts链表仅有的一个Query类型的节点；
+	* 节点是CMD_UTILITY类型操作；
+	* 节点的utilityStmt字段保存的是之一：
+	* FETCH语句（类型为T_FetchStmt）
+	* EXECUTE语句（类型为T_ExecuteStmt）
+	* EXPLAIN语句（类型为T_ExplainStmt）
+	* SHOW语句（类型为T_VariableShowStmt）
+	* */
 	if (list_length(stmts) == 1)
 	{
 		Node	   *stmt = (Node *) linitial(stmts);
@@ -308,6 +321,10 @@ ChoosePortalStrategy(List *stmts)
 		else
 			elog(ERROR, "unrecognized node type: %d", (int) nodeTag(stmt));
 	}
+
+	// 选择PORTAL_ONE_RETURNING策略适用于：
+	// stmts链表中只有一个包含RETURNING子句（returningList不为空）的原子操作。
+	// 其他的各种情况都将以PORTAL_MULTI_QUERY策略进行处理。
 	if (nSetTag == 1)
 		return PORTAL_ONE_RETURNING;
 

@@ -393,6 +393,7 @@ transformOptionalSelectInto(ParseState *pstate, Node *parseTree)
 		}
 	}
 
+	// 完成语义分析
 	return transformStmt(pstate, parseTree);
 }
 
@@ -481,11 +482,12 @@ transformStmt(ParseState *pstate, Node *parseTree)
 			/*
 			 * Special cases
 			 */
+		// DECLARECURSOR(定义游标)
 		case T_DeclareCursorStmt:
 			result = transformDeclareCursorStmt(pstate,
 												(DeclareCursorStmt *) parseTree);
 			break;
-
+		// EXPLAIN(显示查询的执行计划)
 		case T_ExplainStmt:
 			result = transformExplainStmt(pstate,
 										  (ExplainStmt *) parseTree);
@@ -506,7 +508,7 @@ transformStmt(ParseState *pstate, Node *parseTree)
 			/*
 			 * other statements don't require any transformation; just return
 			 * the original parsetree with a Query node plastered on top.
-			 */
+			 */// UTILITY(建表、建索引等附件命令)
 			result = makeNode(Query);
 			result->commandType = CMD_UTILITY;
 			result->utilityStmt = (Node *) parseTree;

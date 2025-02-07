@@ -4450,6 +4450,7 @@ QueryRewrite(Query *parsetree)
 	 *
 	 * Apply all non-SELECT rules possibly getting 0 or many queries
 	 */
+	// 1）用非select规则将一个查询重写为0个或多个查询，
 	querylist = RewriteQuery(parsetree, NIL, 0);
 
 	/*
@@ -4459,6 +4460,8 @@ QueryRewrite(Query *parsetree)
 	 *
 	 * This is also a handy place to mark each query with the original queryId
 	 */
+	// 2）对上一步得到的每个查询分别用RIR规则重写
+	// （无条件INSERT规则，并且只能有一个SELECT规则动作）
 	results = NIL;
 	foreach(l, querylist)
 	{
@@ -4487,6 +4490,7 @@ QueryRewrite(Query *parsetree)
 	 * canSetTag.  If we aren't checking asserts, we can fall out of the loop
 	 * as soon as we find the original query.
 	 */
+	// 3）将这些查询树作为查询重写的结果返回
 	origCmdType = parsetree->commandType;
 	foundOriginalQuery = false;
 	lastInstead = NULL;

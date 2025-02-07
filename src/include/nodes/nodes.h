@@ -261,14 +261,22 @@ typedef double Cardinality;		/* (estimated) number of rows or other integer
  */
 typedef enum CmdType
 {
+	// 未定义
 	CMD_UNKNOWN,
+	// SELECT查询类型
 	CMD_SELECT,					/* select stmt */
+	// 更新操作
 	CMD_UPDATE,					/* update stmt */
+	// 插入操作
 	CMD_INSERT,					/* insert stmt */
+	// 删除操作
 	CMD_DELETE,					/* delete stmt */
 	CMD_MERGE,					/* merge stmt */
+	// 功能性操作（数据定义语句）
 	CMD_UTILITY,				/* cmds like create, destroy, copy, vacuum,
 								 * etc. */
+	// 用于由查询编译器新生成的操作，即如果一个语句通过编译器的处理之后需要额外生成一个附加的操作，
+	// 则该操作的命令类型就被设置为CMD_NOTHING
 	CMD_NOTHING,				/* dummy command for instead nothing rules
 								 * with qual */
 } CmdType;

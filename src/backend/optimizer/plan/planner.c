@@ -282,6 +282,10 @@ static List *generate_setop_child_grouplist(SetOperationStmt *op,
  * so you'd better copy that data structure if you want to plan more than once.
  *
  *****************************************************************************/
+// 通过数据库的查询优化方法分为两个层次：
+//  * 1. 基于【规则】的查询优化（逻辑优化，Rule Based Optimization，简称RBO）关系代数
+//  * 2. 基于【代价】的查询优化（物理优化，Cost Based Optimization，简称CBO）物理执行路径
+// 整个过程可分为预处理、生成路径和生成计划三个阶段
 PlannedStmt *
 planner(Query *parse, const char *query_string, int cursorOptions,
 		ParamListInfo boundParams)
