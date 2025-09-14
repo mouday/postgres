@@ -1270,12 +1270,12 @@ exec_simple_query(const char *query_string)
 		// 其中还会将Portal的状态设置为PORTAL_DEFINED表示Portal已被定义
 		// portal->status = PORTAL_DEFINED;
 		PortalDefineQuery(
-			portal,                      /* portal */
-			NULL,            /* prepStmtName */
-			query_string,       /* sourceText */
-			commandTag,                  /* commandTag */
-			plantree_list,               /* stmts */
-			NULL                         /* cplan */
+			portal,            /* portal */
+			NULL,              /* prepStmtName */
+			query_string,      /* sourceText */
+			commandTag,        /* commandTag */
+			plantree_list,     /* stmts */
+			NULL               /* cplan */
 		);
 
 		/*
