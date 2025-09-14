@@ -2063,8 +2063,8 @@ static void
 StartTransaction(void)
 {
 	TransactionState s;
-	VirtualTransactionId vxid;
-
+	VirtualTransactionId vxid;		
+	
 	/*
 	 * Let's just make sure the state stack is empty
 	 */
@@ -5635,6 +5635,8 @@ EndParallelWorkerTransaction(void)
 static void
 ShowTransactionState(const char *str)
 {
+	ereport(LOG, (errmsg("ShowTransactionState: %s", str)));
+
 	/* skip work if message will definitely not be printed */
 	if (message_level_is_interesting(DEBUG5))
 		ShowTransactionStateRec(str, CurrentTransactionState);

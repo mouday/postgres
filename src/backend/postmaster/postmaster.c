@@ -1334,6 +1334,7 @@ PostmasterMain(int argc, char *argv[])
 	 * Remember postmaster startup time
 	 */
 	PgStartTime = GetCurrentTimestamp();
+    ereport(LOG, (errmsg("PgStartTime: %ld", PgStartTime)));
 
 	/*
 	 * Report postmaster status in the postmaster.pid file, to allow pg_ctl to

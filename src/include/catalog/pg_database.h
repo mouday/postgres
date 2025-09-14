@@ -34,7 +34,7 @@ CATALOG(pg_database,1262,DatabaseRelationId) BKI_SHARED_RELATION BKI_ROWTYPE_OID
 	/* database name */
 	NameData	datname;
 
-	/* owner of database */
+	/* DBA owner of database */
 	Oid			datdba BKI_DEFAULT(POSTGRES) BKI_LOOKUP(pg_authid);
 
 	/* character encoding */
@@ -55,6 +55,7 @@ CATALOG(pg_database,1262,DatabaseRelationId) BKI_SHARED_RELATION BKI_ROWTYPE_OID
 	/*
 	 * Max connections allowed. Negative values have special meaning, see
 	 * DATCONNLIMIT_* defines below.
+	 * -1表示没有连接限制
 	 */
 	int32		datconnlimit;
 

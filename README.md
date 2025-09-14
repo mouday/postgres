@@ -77,5 +77,7 @@ src/ 源代码目录
 
 pg_ctl -D /Users/wang/local/postgres-data -l logfile start
 
+psql db_test
+
 
 https://www.cnblogs.com/feishujun/p/PostgreSQLSourceAnalysis_query001.html

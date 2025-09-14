@@ -155,8 +155,8 @@ extern MemoryContext BumpContextCreate(MemoryContext parent,
  * that might hold quite a lot of data.
  */
 #define ALLOCSET_DEFAULT_MINSIZE   0
-#define ALLOCSET_DEFAULT_INITSIZE  (8 * 1024)
-#define ALLOCSET_DEFAULT_MAXSIZE   (8 * 1024 * 1024)
+#define ALLOCSET_DEFAULT_INITSIZE  (8 * 1024) // 8k
+#define ALLOCSET_DEFAULT_MAXSIZE   (8 * 1024 * 1024) // 8M
 #define ALLOCSET_DEFAULT_SIZES \
 	ALLOCSET_DEFAULT_MINSIZE, ALLOCSET_DEFAULT_INITSIZE, ALLOCSET_DEFAULT_MAXSIZE
 

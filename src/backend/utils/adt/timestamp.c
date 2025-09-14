@@ -1636,7 +1636,7 @@ pg_conf_load_time(PG_FUNCTION_ARGS)
 
 /*
  * GetCurrentTimestamp -- get the current operating system time
- *
+ * eg: 15位 810554280040133
  * Result is in the form of a TimestampTz value, and is expressed to the
  * full precision of the gettimeofday() syscall
  */

@@ -4773,7 +4773,7 @@ PostgresMain(const char *dbname, const char *username)
 			/* Report any recently-changed GUC options */
 			ReportChangedGUCOptions();
 
-			ReadyForQuery(whereToSendOutput);
+			ReadyForQuery(whereToSendOutput); // 通知客户端，可以发送新消息
 			send_ready_for_query = false;
 		}
 
@@ -4788,8 +4788,8 @@ PostgresMain(const char *dbname, const char *username)
 		/*
 		 * (3) read a command (loop blocks here)
 		 */
-		firstchar = ReadCommand(&input_message);
-
+		firstchar = ReadCommand(&input_message); // 读取客户端消息
+		ereport(LOG, (errmsg("firstchar: %c", firstchar)));
 		/*
 		 * (4) turn off the idle-in-transaction and idle-session timeouts if
 		 * active.  We do this before step (5) so that any last-moment timeout
@@ -4849,7 +4849,7 @@ PostgresMain(const char *dbname, const char *username)
 
 					query_string = pq_getmsgstring(&input_message);
 					pq_getmsgend(&input_message);
-
+					ereport(LOG, (errmsg("query_string: %s", query_string)));
 					if (am_walsender)
 					{
 						if (!exec_replication_command(query_string))

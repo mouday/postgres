@@ -66,9 +66,13 @@ CATALOG(pg_type,1247,TypeRelationId) BKI_BOOTSTRAP BKI_ROWTYPE_OID(71,TypeRelati
 	bool		typbyval BKI_ARRAY_DEFAULT(f);
 
 	/*
-	 * typtype is 'b' for a base type, 'c' for a composite type (e.g., a
-	 * table's rowtype), 'd' for a domain, 'e' for an enum type, 'p' for a
-	 * pseudo-type, or 'r' for a range type. (Use the TYPTYPE macros below.)
+	 * typtype is:
+	 * 'b' for a base type, 基本类型
+	 * 'c' for a composite type (e.g., a table's rowtype), 复合类型
+	 * 'd' for a domain, 域
+	 * 'e' for an enum type, 枚举类型 
+	 * 'p' for a pseudo-type, 伪类型
+	 * 'r' for a range type. (Use the TYPTYPE macros below.)
 	 *
 	 * If typtype is 'c', typrelid is the OID of the class' entry in pg_class.
 	 */

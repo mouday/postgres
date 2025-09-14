@@ -42,7 +42,30 @@ all check install installdirs installcheck installcheck-parallel uninstall clean
 	   false; \
 	 fi
 
+.PHONY: start
+start:
+	pg_ctl -D /Users/wang/local/postgres-data -l logfile start
+
+.PHONY: stop
+stop:
+	pg_ctl -D /Users/wang/local/postgres-data -l logfile stop
+
+.PHONY: restart
+restart:
+	make stop && make start
+
 .PHONY: build
 build:
-	./configure --prefix=/Users/wang/local/postgres --enable-debug --enable-cassert --enable-depend CFLAGS=-O0 && \
+	./configure --prefix=/Users/wang/local/postgres --enable-debug --enable-cassert --enable-depend CFLAGS=-O0 && make && make install
+
+.PHONY: make
+make:
 	make && make install
+
+.PHONY: reload
+reload:
+	$(make) stop; $(make) rebuild && $(make) start
+
+.PHONY: log
+log:
+	bash tail_log.sh

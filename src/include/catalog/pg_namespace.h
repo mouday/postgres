@@ -35,12 +35,14 @@
 CATALOG(pg_namespace,2615,NamespaceRelationId)
 {
 	Oid			oid;			/* oid */
-
+	/* 命名空间名字 */
 	NameData	nspname;
+	/* 所有者 */
 	Oid			nspowner BKI_DEFAULT(POSTGRES) BKI_LOOKUP(pg_authid);
 
 #ifdef CATALOG_VARLEN			/* variable-length fields start here */
-	aclitem		nspacl[1];
+	/* ACL  访问控制列表 */
+	aclitem		nspacl[1]; 
 #endif
 } FormData_pg_namespace;
 
