@@ -219,7 +219,8 @@ ChoosePortalStrategy(List *stmts)
 
 	* 选择PORTAL_ONE_SELECT策略应满足以下条件：
 	* stmts链表中只有一个PlannedStmt类型或是Query类型的节点；
-	* 节点是CMD_SELECT类型操作；节点的utilityStmt字段和intoClause字段为空
+	* 节点是CMD_SELECT类型操作；
+	* 节点的utilityStmt字段和intoClause字段为空
 	*
 	* 选择PORTAL_UTIL_SELECT策略应满足以下条件：
 	* stmts链表仅有的一个Query类型的节点；
